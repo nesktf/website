@@ -1,5 +1,5 @@
 (local {: cat/} (require :fs))
-(local {: epoch-to-str} (require :util))
+(local {: epoch-to-str-day} (require :util))
 (local {: blog-top-entries} (require :pages.blog))
 (local {: proj-top-entries} (require :pages.projects))
 
@@ -7,7 +7,7 @@
   [(et:page-from-templ "index"
                        {:title "Home"
                         :dst-path (cat/ paths.output "index.html")}
-                       {:epoch_to_str epoch-to-str
+                       {:epoch_to_str epoch-to-str-day
                         :projects (proj-top-entries paths 5)
                         :blog_entries (blog-top-entries paths 5)})])
 

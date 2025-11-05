@@ -145,16 +145,31 @@ body {
   flex-direction: column;
 }
 
-.code-block pre {
+.blog-entry-content pre {
   background-color: var(--bg-2);
   padding: 20px;
   border-radius: 4px;
+  overflow: auto;
 }
 
 .img-cont {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.welcome-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-aa {
+
+}
+
+.welcome-text {
+
 }
 
 #random-image {
@@ -172,7 +187,18 @@ body {
     border-top: 1px solid var(--border-3);
   }
   .main-content {
-    width: 94%;
+    max-width: 90vw;
+    min-width: 90vw;
+    width: 90vw;
+    order: 1;
+  }
+  .welcome-card {
+    flex-direction: column;
+  }
+  .welcome-aa {
+    order: 2;
+  }
+  .welcome-text {
     order: 1;
   }
 }

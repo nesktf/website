@@ -33,16 +33,6 @@
       <% if (disable_sidebar) then %>
       <% else %>
         <aside class="sidebar">
-          <div class="card">
-            <h2>Random image</h2>
-            <div class="img-cont">
-              <img id="random-image" src="/image/funnies/kyouko_pc.png" alt="random image" />
-              <p class="img-caption">
-                <i id="random-image-caption">Kyouko browsing the <a href="/blog">blog</a></i>
-              </p>
-            </div>
-          </div>
-
           <div class="card card-links">
             <h2>Website changelog</h2>
             <% if (versions and type(versions) == "table") then %>
@@ -56,6 +46,16 @@
             <% else %>
               <p>None :c</p>
             <% end %>
+          </div>
+
+          <div class="card">
+            <h2>Random image</h2>
+            <div class="img-cont">
+              <img id="random-image" src="/image/funnies/kyouko_pc.png" alt="random image" />
+              <p class="img-caption">
+                <i id="random-image-caption">Kyouko browsing the <a href="/blog">blog</a></i>
+              </p>
+            </div>
           </div>
         </aside>
       <% end %>

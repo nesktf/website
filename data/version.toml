@@ -18,3 +18,14 @@ todo = [
   "Fix inline code block formatting in markdown entries",
   "Fix new line bugs inside code blocks in markdown entries",
 ]
+
+["v0.1.1"]
+timestamp = 1762301285
+title = "Minor markdown & style fixes"
+changes = [
+  "Fix new line bugs inside code blocks in markdown entries",
+  "Fix weird looking layot on mobile",
+]
+todo = [
+  "Everything else from v0.1.0 :p",
+]

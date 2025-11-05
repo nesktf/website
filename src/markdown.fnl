@@ -65,7 +65,9 @@
                  : cpy-files} (ipairs md-entries)]
     (let [luna-writer (lmrk.writer.html.new {})
           luna-parser (lmrk.reader.markdown.new luna-writer
-                                                {:link_attributes true})
+                                                {:link_attributes true
+                                                 :smart true
+                                                 :fenced_code_blocks true})
           file-content (: (read-file md-file.src) :gsub "^%+%+%+(.-)%+%+%+" "")
           md-content (if ?pre-process!
                          (?pre-process! {: id

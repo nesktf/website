@@ -1,7 +1,7 @@
 <div class="card">
   <h2 class="card-title">Welcome to my website</h2>
-  <div class="card-content" style="display: flex; align-items: center; gap: 20px;">
-    <div class="aa">
+  <div class="welcome-card card-content">
+    <div class="aa welcome-aa">
       <pre>　　　　　　　 　_____.,.へ.
   　　　 _,.-‐''''"´　／ ＠ ＼_.
   　　,.'"　　r___,.rﾆ'ｰ'´￣｀ヽ!ヽ､
@@ -22,7 +22,7 @@
       </pre>
       <p style="text-align: center"><i>Yuyuko welcomes you</i></p>
     </div>
-    <div>
+    <div class="welcome-text">
       <p>Hello! And welcome to my little place on the internet.</p>
       <p>Here you can find about my programming <a href="/projects">projects</a> and some other <a href="/pages">useless things</a> related to me and the stuff that i like.</p>
       <p>From time to time i also like to write random stuff on my <a href="/blog">blog</a>, mostly about my projects.</p>

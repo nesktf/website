@@ -15,10 +15,12 @@
   (html-content:gsub "(%<img%s-[^%>]*)title=\"([^\"]*)\"([^%>]*/%>)" do-thing))
 
 (λ sanitize-code-blocks [html-content]
-  (let [replaced-code-start (html-content:gsub "<code>"
-                                               "<div class=\"code-block\"><pre><code>")
-        replaced-code (replaced-code-start:gsub "</code>" "</code></pre></div>")]
-    (replaced-code:gsub "%<code%>(.-)\n(.[^%>]*)%s?%</code%>"
-                        highlight-code-block)))
+  html-content)
+
+; (let [replaced-code-start (html-content:gsub "<code>u"
+;                                              "<div class=\"code-block\"><pre><code>")
+;       replaced-code (replaced-code-start:gsub "</code>" "</code></pre></div>")]
+;   (replaced-code:gsub "%<code%>(.-)\n(.[^%>]*)%s?%</code%>"
+;                       highlight-code-block)))
 
 {: replace-img-dirs : replace-img-bodies : sanitize-code-blocks}

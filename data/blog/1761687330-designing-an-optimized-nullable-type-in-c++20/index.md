@@ -8,7 +8,8 @@ tags = ["programming", "c++"]
 +++
 ## A better nullable type (for some definition of better)
 I recall reading or hearing somewhere that Rust's Option\<T\> can be optimized in some cases
-to use the same size as its argument, so that would be size_of::Option\<T\>() == size_of::\<T\>().
+to use the same size as its argument, so that would be size\_of::\<Option\<T\>\>() ==
+size\_of::\<T\>().
 
 I wanted to do something similar in C++, just because it looked like it would be fun (and to
 keep adding more things to my own standard library)
@@ -23,6 +24,7 @@ template<typename T>
 class optional {
 public:
   // More optional things...
+
 private:
   union {
     T _obj;
@@ -42,9 +44,11 @@ class optional {
 public:
   optional() :
     _dummy{}, _flag{false} {}
+
   template<typename... Args>
   explicit optional(std::in_place_t, Args&&... args) :
     _obj{std::forward<Args>(args)...}, _flag{true} {}
+
 public:
   ~optional() noexcept {
     if (has_value()) {
@@ -52,6 +56,7 @@ public:
     }
   }
   // Complete the rule of five...
+
 public:
   bool has_value() const { return _flag; }
   // ...
@@ -84,14 +89,17 @@ struct my_funny_type {
     value{value_} {}
   int value;
 };
+
 // Option 1
 template<>
 struct optional_null<my_funny_type> : public std::integral_constant<my_funny_type, my_funny_type{0}>;
+
 // Option 2
 template<>
 struct optional_null<my_funny_type> {
   static constexpr my_funny_type value = my_funny_type{0};
 };
+
 // Partial specialization for pointers
 template<typename T>
 struct optional_null<T*> : public std::integral_constant<T*, nullptr> {};
@@ -105,6 +113,7 @@ just add an overload to keep it simple for the pointer specialization.
 constexpr bool operator==(const my_funny_type& a, const my_funny_type& b) noexcept {
   return a.value == b.value;
 }
+
 constexpr bool operator!=(const my_funny_type& a, const my_funny_type& b) noexcept {
   return a.value != b.value;
 }
@@ -118,13 +127,16 @@ template<typename T>
 concept has_operator_equals = requires(const T a, const T b) {
   { a == b } -> std::convertible_to<bool>;
 };
+
 template<typename T>
 concept has_operator_nequals = requires(const T a, const T b) {
   { a != b } -> std::convertible_to<bool>;
 };
+
 template<typename T>
 concept valid_optional_type = !std::same_as<T, std::in_place_t> && !std::same_as<T, nullopt_t> &&
                               !std::is_void_v<T> && !std::is_reference_v<T>;
+
 template<typename T>
 concept optimized_optional_type = requires(T obj) {
   requires valid_optional_type<T>;
@@ -143,9 +155,11 @@ class optional_data {
 public:
   optional_data() :
     _dummy{}, _flag{false} {}
+
   template<typename... Args>
   explicit optional_data(std::in_place_t, Args&&... args) :
     _obj{std::forward<Args>(args)...}, _flag{true} {}
+
 public:
   ~optional_data() noexcept {
     if (has_value()) {
@@ -153,9 +167,11 @@ public:
     }
   }
   // Complete the rule of five...
+
 public:
   bool has_value() const { return _flag; }
   // More optional things
+
 private:
   union {
     T _obj;
@@ -163,6 +179,7 @@ private:
   };
   bool _flag;
 };
+
 // Optimized case
 template<typename T>
 requires(optimized_optional_type<T>)
@@ -170,10 +187,13 @@ class optional_data {
 public:
   optional_data() :
     _obj{optional_null<T>::value} {}
+
   template<typename... Args>
   explicit optional_data(std::in_place_t, Args&&... args) :
     _obj{std::forward<Args>(args)...} {}
+
   ~optional_data() noexcept = default // No need to define a destructor
+
 public:
     bool has_value() const {
       if constexpr (has_operator_equals<T>) {
@@ -183,9 +203,11 @@ public:
       }
     }
     // Optional things...
+
 private:
   T _obj;
 };
+
 // We then inherit from optional_data
 template<valid_optional_type T>
 class optional : public optional_data<T> {
@@ -213,9 +235,10 @@ following example
 
 ```cpp 
 using my_funny_alias = uint32_t;
+
 // Oh boy, i sure do hope nothing evil happens here
 template<>
-struct optional_null<> : public std::integral_constant<my_funny_alias, 0>;
+struct optional_null<my_funny_alias> : public std::integral_constant<my_funny_alias, 0>;
 ```
 
 This, however, might bite you in the ass later on, because it actually specializes the null value
@@ -225,14 +248,14 @@ is exactly as defining an optional_null for uint32\_t
 ```cpp 
 // Evil
 template<>
-struct optional_null<> : public std::integral_constant<uint32_t, 0>;
+struct optional_null<uint32_t> : public std::integral_constant<uint32_t, 0>;
 ```
 
 If you still want to do add a specialization for an alias, consider making a simple type safe
-wrapper (like in the main example and my_funny_type) or use a library to generate one for you.
+wrapper (like in the main example and my\_funny\_type) or use a library to generate one for you.
 
 ## Conclusion
 Doing this was a nice exercise. Its very fun to use C++20's concepts to avoid evil hacks like
-SFINAE, and then using other evil hacks like the union lifetime thing.
+SFINAE, and then go and use other evil hacks like the union lifetime thing.
 
 You can find a complete implementation in [my standard library](https://github.com/nesktf/ntfstl/blob/master/include/ntfstl/optional.hpp).
