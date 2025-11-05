@@ -64,7 +64,7 @@ public:
 ```
 
 However, as i just said this has some overhead from this flag (a *whole* extra byte, can you
-believe it?). So i thing that we can do better.
+believe it?). So i think that we can do better.
 
 ## Using traits
 The only way (that i could think of) for us to eliminate this flag is to provide a "default" null
@@ -72,7 +72,7 @@ value for your T and check for it when we need to check for a null value.
 
 The easiest way that i think would let us do this is creating a templated struct that we
 can specialize to provide the null value. Other approaches exist like adding something like an
-is_null() method to your class, or adding a static member value to it, but i wanted to avoid
+is\_null() method to your class, or adding a static member value to it, but i wanted to avoid
 modifying the class directly. So we have something like the following:
 
 ```cpp
@@ -221,7 +221,7 @@ optimize the class.
 
 First of all, your T **HAS** to ve copy constructible for it to be used in the optimized case,
 otherwise you will encounter a very funny compilation error. You could add this as a requirement
-in your optimized_optional_type concept if you want to.
+in your optimized\_optional\_type concept if you want to.
 
 Second, i first have said that i don't want to modify the original T class at all, but
 then i came and said that you have to define an overload for operator== for this to work. This
@@ -243,7 +243,7 @@ struct optional_null<my_funny_alias> : public std::integral_constant<my_funny_al
 
 This, however, might bite you in the ass later on, because it actually specializes the null value
 for **ALL** instances where you use uint32\_t (yes, C++ does not have type safe aliases), so this
-is exactly as defining an optional_null for uint32\_t
+is exactly as defining an optional\_null for uint32\_t
 
 ```cpp 
 // Evil

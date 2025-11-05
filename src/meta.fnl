@@ -14,13 +14,15 @@
 
   (let [version-meta-content (read-file (cat/ paths.data "version.toml"))
         versions (toml.decode version-meta-content)
+        todo-list (parse-markdown versions.TODO.todo)
         ver-list (icollect [ver detail (pairs versions)]
-                   {: ver
-                    :timestamp detail.timestamp
-                    :title detail.title
-                    :changes (parse-markdown detail.changes)
-                    :todo (parse-markdown detail.todo)})]
+                   (if (= ver "TODO")
+                       nil
+                       {: ver
+                        :timestamp detail.timestamp
+                        :title detail.title
+                        :changes (parse-markdown detail.changes)}))]
     (table.sort ver-list #(> $1.timestamp $2.timestamp))
-    ver-list))
+    {:versions ver-list :todo todo-list}))
 
 {: parse-versions :comp-date (fn [] comp-date) : set-comp-date!}

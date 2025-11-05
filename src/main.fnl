@@ -41,7 +41,9 @@
   (copy-file page.src-path page.dst-path))
 
 (fn handle-write-file [page]
-  (write-file page.dst-path page.content))
+  (let [(dir _file) (split-dir-file page.dst-path)]
+    (make-dir dir)
+    (write-file page.dst-path page.content)))
 
 (fn write-page-files! [et page meta]
   (if (= page.type filetype.page) (handle-write-content et page meta)
@@ -49,10 +51,10 @@
       (handle-copy-file page)))
 
 (let [paths (parse-paths)
-      version-meta (parse-versions paths)
+      {: versions} (parse-versions paths)
       et-ctx (et-load paths)
       pages (load-pages et-ctx paths)]
   (set-comp-date!)
   (each [_i page (ipairs pages)]
-    (write-page-files! et-ctx page {:versions (truncate-list version-meta 5)}))
+    (write-page-files! et-ctx page {:versions (truncate-list versions 5)}))
   (print (string.format "- Page compiled at %s " (comp-date))))

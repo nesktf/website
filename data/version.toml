@@ -1,3 +1,31 @@
+[TODO]
+todo = [
+  "Hash images to save some space in the long run",
+  "Design the `pages/` section properly",
+  "Add a simple lexer for syntax highlighting inside markdown entries",
+  "Fix styles for inline LaTeX equations",
+  "Fix inline code block formatting in markdown entries",
+  "Add a search prompt in `blog/`, `projects/` and `pages/`",
+]
+
+["v0.1.2"]
+timestamp = 1762373864
+title = "JS additions"
+changes = [
+  "Added a counter for visits",
+  "Added a pseudo API endpoint for projects and blog entries at `/api/blog.json` & `/api/projects.json`",
+  "Added more funny images to the 404 page",
+  "Use a separate card for TODOs in `meta/`",
+]
+
+["v0.1.1"]
+timestamp = 1762301285
+title = "Minor markdown & style fixes"
+changes = [
+  "Fix new line bugs inside code blocks in markdown entries",
+  "Fix weird looking layout on mobile",
+]
+
 ["v0.1.0"]
 timestamp = 1761673881
 title = "Initial website release"
@@ -9,23 +37,4 @@ changes = [
   "Added a changelog and a random image on the main layout sidebar",
   "Removed Herobrine",
   "Added Kyouko",
-]
-todo = [
-  "Hash images to save some space in the long run",
-  "Design the `pages/` section properly",
-  "Add a simple lexer for syntax highlighting inside markdown entries",
-  "Fix styles for inline LaTeX equations",
-  "Fix inline code block formatting in markdown entries",
-  "Fix new line bugs inside code blocks in markdown entries",
-]
-
-["v0.1.1"]
-timestamp = 1762301285
-title = "Minor markdown & style fixes"
-changes = [
-  "Fix new line bugs inside code blocks in markdown entries",
-  "Fix weird looking layot on mobile",
-]
-todo = [
-  "Everything else from v0.1.0 :p",
 ]

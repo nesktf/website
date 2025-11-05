@@ -8,14 +8,17 @@
 (local blog-page {:route "blog"})
 
 (λ ext-blog-links [entries]
-  "Get blog links with format `{:name <string> :url <string> :date <epoch>}`"
+  "Get blog links with format `{:name <string> :url <string> :date <epoch> :tags <string[]>}`"
   ;; From newest to oldest
   (table.sort entries (fn [entry-a entry-b]
                         (let [date-a (tonumber entry-a.date)
                               date-b (tonumber entry-b.date)]
                           (> date-a date-b))))
   (icollect [_i entry (ipairs entries)]
-    {:name entry.name :url (cat/ "/blog" entry.id) :date entry.date}))
+    {:name entry.name
+     :url (cat/ "/blog" entry.id)
+     :date entry.date
+     :tags entry.tags}))
 
 (λ blog-page-gen [{: et : paths}]
   "Generate the blog page tree.

@@ -12,8 +12,8 @@ Hello! Welcome to the first blog entry!!
 I intend on filling this section of the website with random thoughts or ideas that i want to share
 with the world.
 
-Also, just for having a permanent place to test the blog capabillities. I will put some random
-stuff down below, feel free to check the [source code](https://github.com/nesktf/website) if
+Also, just for having a permanent place to test the blog capabillities, i will put some random
+stuff down below. Feel free to check the [source code](https://github.com/nesktf/website) if
 you are curious :p
 
 ## Images

@@ -5,6 +5,7 @@
 (local {: misc-page-gen} (require :pages.misc))
 (local {: index-page-gen} (require :pages.index))
 (local {: meta-page-gen} (require :pages.meta))
+(local {: api-page-gen} (require :pages.api))
 
 (local generators [{:name "index" :make-page index-page-gen}
                    {:name "404" :make-page not-found-page-gen}
@@ -12,7 +13,8 @@
                    {:name "projects" :make-page proj-page-gen}
                    {:name "blog" :make-page blog-page-gen}
                    {:name "misc" :make-page misc-page-gen}
-                   {:name "meta" :make-page meta-page-gen}])
+                   {:name "meta" :make-page meta-page-gen}
+                   {:name "api" :make-page api-page-gen}])
 
 (λ load-pages [et paths]
   (local merged-tree [])

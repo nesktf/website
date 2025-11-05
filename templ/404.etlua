@@ -1,6 +1,6 @@
 <div class="card" style="text-align: center">
   <h1>Page not found</h1>
-  <img id="404-image" src="/image/404_marisad.png"/>
+  <img id="404-image" style="width: 350px; height: auto;" src="/image/funnies/404_marisad.png"/>
   <p>It looks like there is nothing here...</p>
   <p><a href="/" style="text-decoration: none; color: #007BFF">Go back to the home page</a></p>
 </div>

@@ -13,6 +13,4 @@ Generator for my static website
 - LuaFileSystem
 - lunamark
 - toml.lua 
-
-## TODO
-- Hash blog entry images to save some space. Store them inside `/image/blog`
+- lua-cjson

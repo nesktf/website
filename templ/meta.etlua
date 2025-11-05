@@ -1,24 +1,35 @@
+<div id="visit-counter"class="card">
+  <h2>Visit counter</h2>
+  <div id="moe-counter" class="img-cont">
+    <p>Loading counter...</p>
+    <noscript><p>Please enable JavaScript to view the visit counter!</p></noscript>
+  </div>
+</div>
 <% if (versions and type(versions) == "table") then %>
-    <% for _, detail in ipairs(versions) do %>
-      <div class="card">
-        <h2 id="<%= detail.ver %>"><%= detail.ver %> - <%= detail.title %></h2>
-        <ul><li><p>Version date: <%= epoch_to_str(detail.timestamp) %></p></li></ul>
-
-        <h3>Changes</h3>
+  <% if (todo and #todo > 0) then %>
+    <div id="ver-todo" class="card">
+      <h2>Website TODO</h2>
+        <p>Things that i want to fix or add to the website, in no particular order:</p>
         <ul>
-          <% for _, change in ipairs(detail.changes) do %>
-            <li><%- change %></li>
+          <% for _, curr in ipairs(todo) do %>
+            <li><%- curr %></li>
           <% end %>
         </ul>
+    </div>
+  <% end %>
+  <% for _, detail in ipairs(versions) do %>
+    <div id="<%= detail.ver %>" class="card">
+      <h2><%= detail.ver %> - <%= detail.title %></h2>
+      <ul><li><p>Version date: <%= epoch_to_str(detail.timestamp) %></p></li></ul>
 
-        <h3>TODO</h3>
-        <ul>
-          <% for _, todo in ipairs(detail.todo) do %>
-            <li><%- todo %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+      <h3>Changes</h3>
+      <ul>
+        <% for _, change in ipairs(detail.changes) do %>
+          <li><%- change %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 <% else %>
   <div class="card">
     <p>Nothing to se here...</p>

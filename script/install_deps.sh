@@ -14,3 +14,4 @@ luainstall etlua
 luainstall luafilesystem
 luainstall lunamark
 luainstall toml
+luainstall lua-cjson
