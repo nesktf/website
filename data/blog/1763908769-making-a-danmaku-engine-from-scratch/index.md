@@ -224,7 +224,8 @@ okuu.package.start_stage {
 }
 ```
 
-![preview1](%%DIR%%/preview1.webm "Chiruno shooting stars"){height=auto width=720}
+<!-- ![preview1](%%DIR%%/preview1.webm "Chiruno shooting stars"){height=auto width=720} -->
+![preview1](https://files.catbox.moe/iu0cxo.webm "Chiruno shooting stars"){height=auto width=720}
 
 As you can see, spawning things is very simple. You just define a sprite, a velocity vector 
 and the type of movement you want the sprite to have (in this case a simple linear movement).
@@ -310,7 +311,8 @@ okuu.package.start_stage {
 }
 ```
 
-![preview2](%%DIR%%/preview2.webm "This master spark looks weird"){height=auto width=720}
+<!-- ![preview2](%%DIR%%/preview2.webm "This master spark looks weird"){height=auto width=720} -->
+![preview2](https://files.catbox.moe/d7h72c.webm "This master spark looks weird"){height=auto width=720}
 
 Currently, the projectiles get cleaned up when they get out of the main stage viewport and there
 is no collision checking. I want to delay implementing them at least until I design an event
