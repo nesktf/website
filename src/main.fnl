@@ -15,7 +15,8 @@
                :src (. arg 2)
                :output (. arg 3)
                :data (. arg 4)
-               :cache (. arg 5)}]
+               :cache (. arg 5)
+               :script (. arg 6)}]
     (each [name path (pairs paths)]
       (when (not path)
         (on-die (string.format "Path '%s' missing" name)))

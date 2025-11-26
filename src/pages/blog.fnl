@@ -29,7 +29,11 @@ entire page tree with root at `${paths.output}/blog`.
     (let [entry-path (cat/ blog-path id)
           img-dirs (replace-img-dirs content entry-path)
           img-bodies (replace-img-bodies img-dirs)]
-      (sanitize-code-blocks img-bodies)))
+      img-bodies))
+
+  (fn content-pre-process [et-ctx]
+    (let [md-content (tex-md-inject et-ctx)]
+      (sanitize-code-blocks et-ctx md-content)))
 
   (fn inject-blog-entry [et blog-path entry]
     (let [md_content (content-post-process blog-path entry)
@@ -50,7 +54,7 @@ entire page tree with root at `${paths.output}/blog`.
   (let [output-dir (cat/ paths.output blog-page.route)
         data-root (cat/ paths.data blog-page.route)
         entries (find-md-entries data-root)
-        parsed-entries (compile-md-entries paths entries tex-md-inject)
+        parsed-entries (compile-md-entries paths entries content-pre-process)
         tree [(et:page-from-templ "blog"
                                   {:title "Blog Entries"
                                    :dst-path (cat/ paths.output blog-page.route

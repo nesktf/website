@@ -2,10 +2,18 @@
 todo = [
   "Hash images to save some space in the long run",
   "Design the `pages/` section properly",
-  "Add a simple lexer for syntax highlighting inside markdown entries",
   "Fix styles for inline LaTeX equations",
   "Fix inline code block formatting in markdown entries",
   "Add a search prompt in `blog/`, `projects/` and `pages/`",
+  "Make a proper lexer for syntax highlighting inside markdown entries",
+]
+
+["v0.1.3"]
+timestamp = 1764165600
+title = "Syntax highlighting"
+changes = [
+  "Added a very hacky syntax highlighter for markdown entries",
+  "Fixed some minor style oversights",
 ]
 
 ["v0.1.2"]

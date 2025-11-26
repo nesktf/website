@@ -36,8 +36,11 @@
 
   (html-content:gsub "(%<img%s-[^%>]*)title=\"([^\"]*)\"([^%>]*/%>)" do-thing))
 
-(λ sanitize-code-blocks [html-content]
-  html-content)
+(λ sanitize-code-blocks [{: paths} html-content]
+  (fn parse-code [lang code]
+    (highlight-code-block paths lang code))
+
+  (html-content:gsub "```([^%s]*)%s([^%`]*)```" parse-code))
 
 ; (let [replaced-code-start (html-content:gsub "<code>u"
 ;                                              "<div class=\"code-block\"><pre><code>")

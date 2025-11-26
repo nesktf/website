@@ -596,7 +596,7 @@ void entity_movement::next_pos(vec2& curr_pos) {
 }
 
 entity_movement entity_movement::move_linear(vec2 vel) {
-  // Move at velocity `vel`, with no initial acceleration and no damp value
+  // Move at velocity vel, with no initial acceleration and no damp value
   return {vel, vec2{0.f}, 1.f};
 }
 

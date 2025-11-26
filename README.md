@@ -4,6 +4,8 @@ Generator for my static website
 ## Make dependencies
 ### System dependencies
 - luajit/lua5.1
+- luarocks
+- python3
 - texlive
 - pdf2svg
 
@@ -14,3 +16,6 @@ Generator for my static website
 - lunamark
 - toml.lua 
 - lua-cjson
+
+### Python libs
+- pygments

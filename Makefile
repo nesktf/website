@@ -3,6 +3,7 @@ TEMPL_DIR 	:= templ
 STATIC_DIR 	:= static
 SRC_DIR 		:= src
 DATA_DIR 		:= data
+SCRIPT_DIR  := script
 LUA_OUTPUT 	:= $(BUILD_DIR)/lua
 
 FNLC		:= fennel -c
@@ -37,7 +38,7 @@ $(OUTPUT_DIR)/: $(BUILD_DIR)/
 site: export LUA_PATH = $(LUAPATH)
 site: $(OUTPUT_DIR)/ lua 
 	@echo "- Compiling site templates..."
-	$(LUAINT) $(SITE_MAKER) $(TEMPL_DIR) $(SRC_DIR) $(OUTPUT_DIR) $(DATA_DIR) $(CACHE_DIR)
+	$(LUAINT) $(SITE_MAKER) $(TEMPL_DIR) $(SRC_DIR) $(OUTPUT_DIR) $(DATA_DIR) $(CACHE_DIR) $(SCRIPT_DIR)
 
 clean: $(BUILD_DIR)
 	rm -rf $(BUILD_DIR)
