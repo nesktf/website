@@ -73,5 +73,14 @@
         </div>
       </a>
     <% end %>
+
+  </div>
+</div>
+
+<div id="visit-counter"class="card">
+  <h2>Visit counter</h2>
+  <div id="moe-counter" class="img-cont">
+    <p>Loading counter...</p>
+    <noscript><p>Please enable JavaScript to view the visit counter!</p></noscript>
   </div>
 </div>
