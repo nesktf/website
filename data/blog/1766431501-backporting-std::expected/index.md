@@ -132,20 +132,14 @@ private:
 };
 ```
 
-The `void` specialization is more or less the same, but without defining the copy and move
-constructors for `T`.
+The `void` specialization is more or less the same, but without defining the constructors for `T`.
 
 ```cpp
 template<typename E>
 class expected<void, E> {
 public:
   expected() noexcept :
-    _value(), _has_value(true) {}
-
-  template<typename... Args>
-  expected(in_place_t, Args&&... args)
-    requires(std::is_constructible_v<T, Args...>) :
-    _value(std::forward<Args>(args)...), _has_value(true) {}
+    _has_value(true) {}
 
   expected(const unexpected<E>& unex)
     requires(std::is_copy_constructible_v<E>) :
@@ -291,7 +285,7 @@ tricky to get right, since we have to deal with the cases when either `T` or `E`
 or move assignment.
 
 We need to have special care here, since it's very easy to make a mistake and to never call a
-constructor or call it twice. We use a helper function called `reinit_expected` that is defined
+destructor or call it twice. We use a helper function called `reinit_expected` that is defined
 on the `operator=` page for `std::expected` from
 [cppreference](https://en.cppreference.com/w/cpp/utility/expected/operator=.html) to swap the
 two union values safely. I modified it a little bit to keep the `noexcept` flag and
@@ -356,8 +350,8 @@ destroy the active object and move from the temporary.
 the arguments. If the forwarding constructor throws, we use the temporary value to return to a
 valid state.
 
-We can use two plus another extra case for errors (you can guess how it's implemented) to define
-our `operator=` and `emplace` members
+We can use these functions two plus another extra case for errors (you can guess how it's
+implemented) to define our `operator=` and `emplace` members
 
 ```cpp
 template<typename T, typename E>
@@ -431,8 +425,8 @@ expected<int, std::domain_error> safe_divide(int a, int b) {
 
 int main() {
   const expected<float, std::string> result = safe_divide(2, 2)
-        .transform([](int result) -> float { static_cast<float>(result); })
-        .transform_error([](std::domain_error err) -> std::string { return err.what(); });
+    .transform([](int result) -> float { static_cast<float>(result); })
+    .transform_error([](std::domain_error err) -> std::string { return err.what(); });
   std::cout << result.value() << "\n"; // Prints "1.0"
 
   const expected<int, std::string> result2 = safe_divide(10, 2)
@@ -440,12 +434,12 @@ int main() {
       return safe_divide(result, 0); // Will fail
     })
     .or_else([](std::domain_error err) -> expected<int, std::string> {
-        // Not called in this case, but shown for demonstration purposes
-        try {
-          return unexpected<std::string>(err.what());
-        } catch (const std::bad_alloc&) {
-          return 0; // Default value
-        }
+      // Not called in this case, but shown for demonstration purposes
+      try {
+        return unexpected<std::string>(err.what());
+      } catch (const std::bad_alloc&) {
+        return 0; // Default value
+      }
     });
   std::cout << result2.value() << "\n"; // Will throw
   std::cout << result2.error() << "\n"; // Prints "Can't divide by zero"
@@ -468,24 +462,30 @@ struct expect_monadic_chain<F, void> {
   using type = std::remove_cvref_t<std::invoke_result_t<F>>;
 };
 
+template<typename F, typename T>
+using expect_monadic_chain_t = expect_monadic_chain<F, T>::type;
+
+template<typename T, typename E>
+concept expected_with_error = /* ... */; // Check if T is expected<U,E> for any U
+
 template<typename T, typename E>
 class expected {
 public:
   template<typename F>
   constexpr auto and_then(F&& func) & {
+    // this->get() returns a reference to _value
+    // this->get_error() does the same for _error
     if constexpr (std::is_void_v<T>) {
-      using U = impl::expect_monadic_chain_t<F, void>;
-      static_assert(meta::expected_with_error<U, E>, "F needs to return an expected with error E");
+      using U = expect_monadic_chain_t<F, void>;
+      static_assert(expected_with_error<U, E>, "F needs to return an expected with error E");
       if (_has_value) {
         return std::invoke(std::forward<F>(func));
       } else {
         return U{unexpect, this->get_error()};
       }
     } else {
-      // this->get() returns a reference to _value
-      // this->get_error() does the same for _error
-      using U = impl::expect_monadic_chain_t<F, decltype(this->get())>;
-      static_assert(meta::expected_with_error<U, E>, "F needs to return an expected with error E");
+      using U = expect_monadic_chain_t<F, decltype(this->get())>;
+      static_assert(expected_with_error<U, E>, "F needs to return an expected with error E");
       if (_has_value) {
         return std::invoke(std::forward<F>(func), this->get());
       } else {
@@ -496,7 +496,8 @@ public:
   template<typename F>
   constexpr auto and_then(F&& func) const& { /* ... */ } // Same as above
 
-  // Both same as above, but using decltype(std::move(this->get()))
+  // Both same as above, but using decltype(std::move(this->get())) and
+  // moving from this->get_error()
   template<typename F>
   constexpr auto and_then(F&& func) && { /* ... */ }
   template<typename F>
