@@ -1,6 +1,7 @@
 @import "faces.css";
-@import "proj.css";
-@import "nav.css";
+@import "buttons.css";
+@import "navbar.css";
+@import "layout.css";
 
 html {
   overflow-x: hidden;
@@ -17,105 +18,29 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+
+  line-height: 1.3;
+  font-family: "ibmvga8";
 }
 
-.main-layout {
-  display: flex;
-  max-width: 1400px;
-  margin: 0 auto;
-  flex-grow: 1;
+b {
+  font-weight: normal !important;
+  text-shadow: 2px 2px var(--text-2);
 }
 
-.sidebar {
-  width: 300px;
-  padding: 20px;
-  padding-top: 60px;
-  padding-left: 20px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.main-content {
-  flex-grow: 1;
-  padding: 20px;
-  padding-top: 60px;
-  padding-left: 20px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 800px;
-  max-width: 1000px;
-}
-
-.card {
-  background-color: var(--bg-1);
-  border: 1px solid var(--border-2);
-  border-radius: 4px;
-  padding: 15px;
-  margin-botton: 20px;
-}
-
-.card h2 {
-  font-size: 1.2em;
-  border-bottom: 2px solid var(--border-3);
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-  color: var(--text-1);
-}
-
-.card a {
+a {
   text-decoration: none;
   color: var(--link-1);
 }
 
-.card-links ul {
-  list-style: none;
-  padding: 0;
+h1, h2, h3, h4, h5 {
+	line-height: 1;
+  text-align: start;
 }
 
-.card-links a {
-  text-decoration: none;
-  color: var(--link-1);
-  display: block;
-  padding: 5px 0;
-}
-
-.card-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 10px 0;
-  border-radius: 4px;
-}
-
-.card-image p {
-  text-align: center;
-}
-
-.entry-button-cont {
-  display: flex;
-  max-width: 1400px;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0 auto;
-  flex-grow: 1;
-}
-
-.entry-button {
-  border: 1px solid (--border-2);
-  background-color: var(--bg-2);
-  border-radius: 4px;
-  padding: 0px 8px;
+code {
   color: var(--text-1);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.entry-button:hover {
-  background-color: var(--bg-4);
+  font-family: "ibmvga8";
 }
 
 .tex-image-inline {
@@ -143,13 +68,9 @@ body {
 .code-block {
   display: flex;
   flex-direction: column;
-}
-
-.blog-entry-content pre {
-  background-color: var(--bg-2);
-  padding: 20px;
-  border-radius: 4px;
   overflow: auto;
+  /* min-width: 100ch; */
+  /* width: 100%; */
 }
 
 .img-cont {
@@ -158,10 +79,31 @@ body {
   align-items: center;
 }
 
+.img-cont video {
+  max-width: 720px;
+  width: 100%;
+}
+
 .welcome-card {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.aa pre {
+  font-size: 1em;
+  line-height: 1.1;
+  font-family: 'ＭＳ Ｐゴシック','MS PGothic','梅Pゴシック',"textar",sans-serif;
+  white-space: pre;
+  word-wrap: normal;
+  background-color: var(--bg-2);
+  border-radius: 4px;
+}
+
+.aa span {
+  font-size: 1em;
+  font-family: monospace;
+  white-space: pre;
 }
 
 .welcome-aa {
@@ -172,26 +114,45 @@ body {
 
 }
 
-#random-image {
-  max-height: 200px;
-  width: auto;
+.proj-desc {
+  padding: 0 8px;
+  padding-bottom: 8px;
+}
+
+.proj-title-cont {
+  display: flex;
+  width: 100%;
+}
+
+.proj-title-cont h2 {
+  flex-grow: 1;
+}
+
+.proj-title-cont a {
+  white-space: nowrap;
+  padding: 10px;
+}
+
+.proj-logo-cont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.proj-logo {
+  max-width: 400px;
+  height: auto;
+}
+
+.blog-search input {
+  height: 2em;
+  width: 100%;
+  padding-top: 5px;
+  border: 0px;
+  background-color: var(--bg-2);
 }
 
 @media screen and (max-width: 768px) {
-  .main-layout {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 94%;
-    order: 2;
-    border-top: 1px solid var(--border-3);
-  }
-  .main-content {
-    max-width: 90vw;
-    min-width: 90vw;
-    width: 90vw;
-    order: 1;
-  }
   .welcome-card {
     flex-direction: column;
   }

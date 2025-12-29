@@ -1,3 +1,5 @@
+@import "vars.css";
+
 .tag-button {
   display: flex;
   align-items: center;
@@ -38,32 +40,25 @@
   padding: 5px;
 }
 
-.proj-desc {
-  padding: 0 8px;
-  padding-bottom: 8px;
+.entry-button {
+  /* border: 1px solid var(--border-2); */
+  background-color: var(--bg-2);
+  border-radius: 4px;
+  padding: 0px 8px;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.proj-title-cont {
+.entry-button:hover {
+  background-color: var(--bg-4);
+}
+
+.entry-button-cont {
   display: flex;
-  width: 100%;
-}
-
-.proj-title-cont h2 {
+  max-width: 1400px;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 auto;
   flex-grow: 1;
-}
-
-.proj-title-cont a {
-  white-space: nowrap;
-  padding: 10px;
-}
-
-.proj-logo-cont {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.proj-logo {
-  max-width: 400px;
-  height: auto;
 }

@@ -1,6 +1,15 @@
 <div class="card">
+  <h2 class="card-title">Search</h2>
+  <div class="blog-search">
+    <input type="text" id="blog-search-input" value="" placeholder="search for something..." />
+    <noscript>
+      <p>Please enable JavaScript to use the search function!!!</p>
+    </noscript>
+  </div>
+</div>
+<div class="card">
   <h2 class="card-title">Blog entries</h2>
-  <div class="entry-button-cont">
+  <div id="blog-entries" class="entry-button-cont">
     <% for _, entry in ipairs(blog_links) do %>
       <a href="<%= entry.url %>">
         <div class="entry-button">
@@ -13,3 +22,15 @@
     <% end %>
   </div>
 </div>
+<template id="templ-blog-entry">
+  {{#entries}}
+    <a href="{{url}}">
+      <div class="entry-button">
+        <div class="tag-container">
+          <p>{{name}}</p>
+          <p class="tag-name">{{date}}</p>
+        </div>
+      </div>
+    </a>
+  {{/entries}}
+</template>

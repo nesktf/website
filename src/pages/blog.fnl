@@ -17,6 +17,7 @@
   (icollect [_i entry (ipairs entries)]
     {:name entry.name
      :url (cat/ "/blog" entry.id)
+     :subtitle entry.subtitle
      :date entry.date
      :tags entry.tags}))
 
@@ -58,13 +59,15 @@ entire page tree with root at `${paths.output}/blog`.
         tree [(et:page-from-templ "blog"
                                   {:title "Blog Entries"
                                    :dst-path (cat/ paths.output blog-page.route
-                                                   "index.html")}
+                                                   "index.html")
+                                   :name "blog"}
                                   {:epoch_to_str epoch-to-str
                                    :blog_links (ext-blog-links entries)})]]
     (each [_i entry (ipairs parsed-entries)]
       (table.insert tree
                     {:title entry.name
                      :type filetype.page
+                     :name "blog-entry"
                      :content (inject-blog-entry et blog-page.route entry)
                      :dst-path (cat/ output-dir entry.id "index.html")})
       (each [_j file (ipairs entry.files)]

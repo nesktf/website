@@ -1,0 +1,145 @@
+@import "vars.css";
+
+.main-layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-grow: 1;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 10px;
+  padding-top: 60px;
+  padding-left: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 600px;
+  max-width: 900px;
+}
+
+.main-footer {
+  width: 100%;
+  background-color: var(--bg-3);
+  color: var(--text-1);
+  text-align: center;
+  padding: 2px 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.main-footer p {
+  margin: 0;
+}
+
+.main-footer a {
+  display: block;
+  padding: 5px 0;
+}
+
+.card {
+  background-color: var(--bg-1);
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  padding: 15px;
+  margin-botton: 20px;
+}
+
+.card pre {
+	font-family: 'ibmvga8';
+  background-color: var(--bg-2);
+  padding: 10px;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+.card-image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.card-image p {
+  text-align: center;
+}
+
+.sidebar {
+  max-width: 300px;
+  min-width: 150px;
+  padding: 10px;
+  padding-top: 60px;
+  padding-left: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-card {
+  background-color: var(--bg-1);
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  padding: 15px;
+  margin-botton: 20px;
+}
+
+.sidebar-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-links a {
+  display: block;
+  padding: 5px 0;
+}
+
+.sidebar-image {
+  max-width: 150px;
+  width: auto;
+}
+
+.card .sidebar-card .card-header, h1 {
+  border-bottom: 2px solid var(--border-3);
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  color: var(--text-1);
+}
+
+.card .sidebar-card, h2 {
+  font-size: 1.2em;
+  border-bottom: 2px solid var(--border-3);
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  color: var(--text-1);
+}
+
+@media screen and (max-width: 1023px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  .main-content {
+    max-width: 90vw;
+    min-width: 90vw;
+    width: 90vw;
+    order: 1;
+  }
+  .main-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 5px;
+  }
+  .sidebar {
+    max-width: 90vw;
+    padding-top: 20px;
+    padding-left: 10px;
+    order: 2;
+    border-top: 1px solid var(--border-3);
+  }
+}

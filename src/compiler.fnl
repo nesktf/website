@@ -18,6 +18,7 @@
     {:type filetype.page
      :title layout-params.title
      :disable-sidebar layout-params.disable-sidebar
+     :name layout-params.name
      : content
      :dst-path layout-params.dst-path}))
 

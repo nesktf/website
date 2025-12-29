@@ -13,8 +13,8 @@ def main():
                               noclasses=True,
                               nobackground=True,
                               cssclass='code-block',
-                              cssstyles="overflow:auto;width:auto",
-                              prestyles='margin: 0')
+                              cssstyles="",
+                              prestyles="")
     with open(input_file, "r") as input:
         html = highlight(input.read(), get_lexer_by_name(lexer), formatter)
         with open(output_file, "w") as output:

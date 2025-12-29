@@ -1,0 +1,54 @@
+@import "vars.css";
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  box-sizing: border-box;
+
+  background-color: var(--bg-1);
+  padding: 6px 20px;
+  z-index: 1000;
+
+  border-bottom: 1px dashed var(--border-1);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.navbar-logo a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.navbar-links li {
+  margin-left: 20px;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  padding: 4px 12px;
+  display: block;
+  transition: background-color 0.3s;
+  border-radius: 4px;
+}
+
+.navbar-links a:hover {
+  background-color: var(--bg-2);
+}

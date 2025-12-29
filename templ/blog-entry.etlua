@@ -1,15 +1,13 @@
 <div id="md-content" class="card">
-  <div class="blog-entry-header">
+  <div class="card-header">
     <h1><%= entry_title %></h1>
+    <p><%= entry_subtitle %></p>
     <ul>
       <li><p>Published @ <%= pub_date %> / Modified @ <%= mod_date %></p></li>
       <% if (tag_string) then %>
         <li><p>Tags: <%= tag_string %></p></li>
       <% end %>
     </ul>
-    <p><%= entry_subtitle %></p>
   </div>
-  <div class="blog-entry-content">
-    <%- md_content %>
-  </div>
+  <%- md_content %>
 </div>

@@ -92,7 +92,8 @@
                   (et:page-from-templ "projects"
                                       {:title "My Projects"
                                        :dst-path (cat/ paths.output
-                                                       "projects/index.html")}
+                                                       "projects/index.html")
+                                       :name "projects"}
                                       {:projects proj-meta}))
     tree))
 

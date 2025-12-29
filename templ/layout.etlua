@@ -7,6 +7,15 @@
     <title> <%= title %> - nesktf's website </title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "./modules/mustache.js": "/js/modules/mustache.js",
+          "./modules/api.js": "/js/modules/api.js",
+          "main": "/js/main.js"
+        }
+      }
+    </script>
   </head>
 
   <body>
@@ -26,14 +35,14 @@
     </header>
 
     <div class="main-layout">
-      <main id="main-content" class="main-content">
+      <main class="main-content">
         <%- content %>
       </main>
 
       <% if (disable_sidebar) then %>
       <% else %>
         <aside class="sidebar">
-          <div class="card card-links">
+          <div class="sidebar-card sidebar-links">
             <h2>Website changelog</h2>
             <% if (versions and type(versions) == "table") then %>
               <ul>
@@ -48,10 +57,10 @@
             <% end %>
           </div>
 
-          <div class="card">
+          <div class="sidebar-card">
             <h2>Random image</h2>
             <div class="img-cont">
-              <img id="random-image" src="/image/funnies/kyouko_pc.png" alt="random image" />
+              <img id="random-image" class="sidebar-image" src="/image/funnies/kyouko_pc.png" alt="random image" />
               <p class="img-caption">
                 <i id="random-image-caption">Kyouko browsing the <a href="/blog">blog</a></i>
               </p>
@@ -61,10 +70,10 @@
       <% end %>
     </div>
 
-    <footer class="footer">
+    <footer class="main-footer">
       <p><a href="https://github.com/nesktf/website">Source Code</a></p>
       <p> Compiled at <%= comp_date %> </p>
     </footer>
   </body>
-  <script type="module" src="/js/main.js"></script>
+  <script type="module">import main from "main"; main("<%= page_name %>");</script>
 </html>

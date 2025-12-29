@@ -4,8 +4,20 @@ todo = [
   "Design the `pages/` section properly",
   "Fix styles for inline LaTeX equations",
   "Fix inline code block formatting in markdown entries",
-  "Add a search prompt in `blog/`, `projects/` and `pages/`",
+  "Add a search prompt in `projects/` and `pages/`",
   "Make a proper lexer for syntax highlighting inside markdown entries",
+]
+
+["v0.1.4"]
+timestamp = 1766973238
+title = "Minor css fixes"
+changes = [
+  "Fixed some style errors for mobile and < 1024 width screens",
+  "Use only a single font (IBM VGA8)",
+  "Added a search prompt in `blog/`",
+  "Added `mustache.js` for client side rendering",
+  "Refactored the js code a little bit",
+  "Added Reimu Freeman",
 ]
 
 ["v0.1.3"]

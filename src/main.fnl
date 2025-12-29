@@ -1,3 +1,4 @@
+(local inspect (require :inspect))
 (local {: write-file : copy-file : filetype : split-dir-file : make-dir}
        (require :fs))
 
@@ -32,6 +33,7 @@
                            {:content page.content
                             :comp_date (comp-date)
                             :disable_sidebar page.disable-sidebar
+                            :page_name page.name
                             : versions
                             :title page.title})
         (dir _file) (split-dir-file page.dst-path)]

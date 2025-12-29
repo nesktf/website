@@ -9,6 +9,7 @@
   (let [{: versions : todo} (parse-versions paths)]
     [(et:page-from-templ "meta"
                          {:title "Changelog"
+                          :name "meta"
                           :dst-path (cat/ paths.output meta-page.route
                                           "index.html")}
                          {:epoch_to_str epoch-to-str

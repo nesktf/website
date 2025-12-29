@@ -5,6 +5,7 @@
 (λ misc-page-gen [{: et : paths}]
   [(et:page-from-templ "pages"
                        {:title "Other pages"
+                        :name "pages"
                         :dst-path (cat/ paths.output misc-page.route
                                         "index.html")} {})])
 
