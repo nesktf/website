@@ -1,8 +1,8 @@
 BUILD_DIR 	:= build
-TEMPL_DIR 	:= templ
 STATIC_DIR 	:= static
 SRC_DIR 		:= src
-DATA_DIR 		:= data
+TEMPL_DIR 	:= $(SRC_DIR)/templ
+DATA_DIR    := data
 SCRIPT_DIR  := script
 LUA_OUTPUT 	:= $(BUILD_DIR)/lua
 
