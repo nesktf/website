@@ -1,3 +1,17 @@
+(fn cat/ [...]
+  "Concatenate directories. For example, the input `(cat/ \"a\" \"b\")` will return \"a/b\""
+  (let [dirs [...]]
+    (table.concat dirs "/")))
+
+(λ split-ext [filename]
+  "Extract the name and extension for a given filename in the format `<name>.<ext>`"
+  (filename:match "^(.+)%.(.+)$"))
+
+(λ path-filename [path-with-file]
+  "Extract the filename and directory for a path in the format `<dir>/<filename>`"
+  (let [(dir file) (path-with-file:match "^(.+)%/(.+)$")]
+    (values file (.. dir "/"))))
+
 (fn truncate-list [list n]
   (let [len (length list)
         out []]
@@ -22,4 +36,10 @@
 (λ epoch-to-str-day [epoch]
   (os.date "%Y/%m/%d" (tonumber epoch)))
 
-{: truncate-list : merge-tbls : epoch-to-str : epoch-to-str-day}
+{: truncate-list
+ : merge-tbls
+ : epoch-to-str
+ : epoch-to-str-day
+ : cat/
+ : split-ext
+ : path-filename}
