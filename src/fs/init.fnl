@@ -1,4 +1,4 @@
-(local {: cat/ : split-ext} (require :util))
+(local {: cat/ : split-ext : path-filename} (require :util))
 (local {: read-file
         : write-file!
         : file-exists?
@@ -15,21 +15,22 @@
 
 (λ load-md-entries [root-path]
   "Load and parse markdown entries located at `root-path` with format:
-`{:md-content <string> :files <path[]>
+`{:content <string> :files [{:path <path> :name <string>}]
   :name <string> :id <string> :subtitle <string>
   :tags <string[]> :date <epoch> :date-modified <epoch>}`"
   (assert (is-dir? root-path)
           (string.format "Directory %s not found" root-path))
 
   (fn parse-md-file [md-file-path]
-    (let [md-content (read-file md-file-path)
-          toml-header (assert (md-content:match "^%+%+%+(.-)%+%+%+")
+    (let [content (read-file md-file-path)
+          header-pat "^%+%+%+(.-)%+%+%+\n"
+          toml-header (assert (content:match header-pat)
                               (string.format "No header defined in %s"
                                              md-file-path))
           decoded (toml.decode toml-header)
           header (assert decoded.BLOG_ENTRY
                          (string.format "No header defined in %s" md-file-path))]
-      {: md-content
+      {:content (content:gsub header-pat "")
        :name (assert header.title
                      (string.format "No name defined in %s" md-file-path))
        :subtitle (or header.subtitle "")
@@ -51,7 +52,7 @@
                            nil)) 1)
           other-files (icollect [_j file (ipairs files)]
                         (if (not (md-file? file))
-                            (cat/ entry-path file)
+                            {:path (cat/ entry-path file) :name file}
                             nil))]
       {: md-path : other-files}))
 
@@ -61,18 +62,21 @@
           (cat/ root-path entry-name)
           nil)))
 
-  (icollect [_i entry-path (ipairs (find-md-dirs))]
-    (let [{: md-path : other-files} (find-entry-files entry-path)
-          date-modified (last-modification md-path)
-          {: md-content : name : id : tags : date : subtitle} (parse-md-file md-path)]
-      {: md-content
-       :files other-files
-       : name
-       : id
-       : tags
-       : date
-       : date-modified
-       : subtitle})))
+  (let [entries []]
+    (icollect [_i entry-path (ipairs (find-md-dirs)) &into entries]
+      (let [{: md-path : other-files} (find-entry-files entry-path)
+            date-modified (last-modification md-path)
+            {: content : name : id : tags : date : subtitle} (parse-md-file md-path)]
+        {: content
+         :files other-files
+         : name
+         : id
+         : tags
+         : date
+         : date-modified
+         : subtitle}))
+    (table.sort entries #(> $1.date $2.date))
+    entries))
 
 (λ load-etlua-templates [root-path]
   "Load etlua template files located at `root-path` with format:
@@ -141,6 +145,7 @@
        : repo
        : image_desc
        :image proj-file.image}))
+
   (let [proj-files (find-files)]
     ;; Sort in ascending order
     (table.sort proj-files (fn [proj-a proj-b]
@@ -166,12 +171,34 @@
                             (string.format "No changes in version %s" ver))}
           nil)))
 
-  (let [content (assert (read-file file-path) "Version file not found")
+  (let [content (assert (read-file file-path)
+                        (string.format "Version file %s not found" file-path))
         toml-content (toml.decode content)
         todo (or (?. toml-content :TODO :todo) [])
         versions (collect-versions toml-content)]
     (table.sort versions #(> $1.timestamp $2.timestamp))
     {: versions : todo}))
+
+(λ write-page-tree! [pages]
+  "Write a page tree. Each entry needs to have an `op` field for the type of operation:
+- `write`: `{:content <string> :name <string> :path <path>}`
+- `copy`: `{:src <path> :path <path>}`" ; (print (inspect pages))
+  (assert false)
+
+  (λ do-copy-page! [{: src : path}]
+    (print (string.format "- Copying file \"%s\" to \"%s\"" src path))
+    (copy-file! src path))
+
+  (λ do-write-page! [{: name : path : content}]
+    (print (string.format "- Writting file \"%s\" to \"%s\"" name path))
+    (write-file! path content))
+
+  (each [_ page (ipairs pages)]
+    (let [(dir _file) (path-filename page.path)]
+      (make-dir! dir)
+      (match page.op
+        file-op.copy (do-copy-page! page)
+        file-op.write (do-write-page! page)))))
 
 {: read-file
  : write-file!
@@ -185,4 +212,5 @@
  : load-md-entries
  : load-projects
  : load-versions
+ : write-page-tree!
  : file-op}

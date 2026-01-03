@@ -1,5 +1,5 @@
 (local lfs (require :lfs))
-(local {: split-dir-file} (require :util))
+(local {: path-filename} (require :util))
 
 (λ read-file [path]
   "Read a file at `path` as text and return it's contents"
@@ -42,7 +42,7 @@
 (λ copy-file! [from to]
   "Copy a file from `from` to `to`"
   ;; Dirty hack again
-  (let [(dir _name) (split-dir-file to)]
+  (let [(dir _name) (path-filename to)]
     (make-dir! dir)
     (os.execute (string.format "cp \"%s\" \"%s\"" from to))))
 
@@ -66,7 +66,6 @@
  : file-exists?
  : copy-file!
  : make-dir!
- : split-dir-file
  : delete-file!
  : last-modification
  : is-dir?}

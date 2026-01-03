@@ -24,6 +24,7 @@ all: site
 $(BUILD_DIR)/:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(LUA_OUTPUT)/pages
+	@mkdir -p $(LUA_OUTPUT)/fs
 
 $(LUA_OUTPUT)/%.lua: $(SRC_DIR)/%.fnl | $(BUILD_DIR)/
 	@echo "- Compiling fenel source " $<

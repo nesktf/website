@@ -1,7 +1,11 @@
 (fn cat/ [...]
   "Concatenate directories. For example, the input `(cat/ \"a\" \"b\")` will return \"a/b\""
-  (let [dirs [...]]
-    (table.concat dirs "/")))
+  (var out "")
+  (each [_ dir (ipairs [...])]
+    (if (and (not= (out:sub -1) "/") (not= out ""))
+        (set out (.. out "/" dir))
+        (set out (.. out dir))))
+  (out:gsub "//" "/"))
 
 (λ split-ext [filename]
   "Extract the name and extension for a given filename in the format `<name>.<ext>`"
@@ -30,6 +34,18 @@
         (tset out k v)))
     out))
 
+(fn flatten-tbl [tbl]
+  (local out [])
+
+  (fn do-flatten [elem]
+    (if (and (= (type elem) "table") (> (length elem) 0))
+        (each [_ v (ipairs elem)]
+          (do-flatten v))
+        (table.insert out elem)))
+
+  (do-flatten tbl)
+  out)
+
 (λ epoch-to-str [epoch]
   (os.date "%Y/%m/%d %H:%M (GMT-3)" (tonumber epoch)))
 
@@ -38,6 +54,7 @@
 
 {: truncate-list
  : merge-tbls
+ : flatten-tbl
  : epoch-to-str
  : epoch-to-str-day
  : cat/

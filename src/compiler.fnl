@@ -1,47 +1,51 @@
 (local lmrk (require :lunamark))
 (local etlua (require :etlua))
-(local {: cat/ : path-filename : merge-tbls} (require :util))
-(local {: write-file!
-        : read-file
-        : file-exists?
+(local {: cat/ : merge-tbls} (require :util))
+(local {: load-etlua-templates
         : delete-file!
+        : write-file!
         : make-dir!
-        : file-op
-        : load-etlua-templates} (require :fs))
+        : file-exists?
+        : read-file} (require :fs))
 
-(local luna-writter (lmrk.writter.html.new {}))
+(local luna-writer (lmrk.writer.html.new {}))
 
 (λ md-compile [md-content ?args]
   "Compiles markdown content string `md-content` to html.
 Passes `?args` to luna parser if provided."
-  (let [luna-parser (lmrk.reader.markdown.new luna-writter
+  (let [luna-parser (lmrk.reader.markdown.new luna-writer
                                               (or ?args {:link_attributes true}))]
     (luna-parser md-content)))
 
-(λ md-compile-entry [md-entry dest-path ?pre-process]
-  "Compiles a markdown entry to html. Modifies paths to use `dest-path` as their root.
-Calls `?pre-process` on `md-entry` if provided to preprocess the content string. Returns:
-`{:html-content <string> :html-path <path> :files <path[]>}`"
-  (fn rebind-paths [html-root]
-    (icollect [_i file-path (ipairs md-entry.files)]
-      (let [filename (path-filename file-path)]
-        (cat/ html-root filename))))
+(λ et-compile [et-ctx templ-name ?params]
+  (assert (. et-ctx.templs templ-name)
+          (string.format "No template named \"%s\" found" templ-name))
+  (let [base-args {:inject_from (λ [templ ?args]
+                                  (et-compile et-ctx templ ?args))}
+        templ-args (merge-tbls base-args (or ?params {}))
+        templ (. et-ctx.templs templ-name)]
+    (templ templ-args)))
 
-  (let [md-content (if (not= ?pre-process nil)
-                       (?pre-process md-entry)
-                       md-entry.md-content)
-        html-root (cat/ dest-path md-entry.id)
-        html-content (md-compile md-content
-                                 {:link_attributes true
-                                  :smart true
-                                  :fenced_code_blocks true})]
-    {: html-content
-     :html-path (cat/ html-root "index.html")
-     :files (rebind-paths html-root)}))
+(λ et-create-ctx [templ-path]
+  "Creates an etlua compiler context. Loads and compiles templates from `templ-path`"
+  (fn compile-templates [templ-dir]
+    (collect [_i {: name : source} (ipairs (load-etlua-templates templ-dir))]
+      (do
+        (print (string.format "- Compiling template \"%s\"..." name))
+        (let [(compiled err) (etlua.compile source)]
+          (when (= compiled nil)
+            (error err))
+          (values name compiled)))))
 
+  (let [ctx {:templs (compile-templates templ-path)}]
+    (assert (not= ctx.templs.layout nil) "No layout etlua template defined")
+    ctx))
+
+;; TODO: Make an interface to run commands?
 (λ tex-compile [cache-path equation inline?]
   "Compile a LaTeX equation that might be inline. Uses `cache-path` as cache directory.
-Returns a table with the tex equation and the source for an svg file with the rendered equation."
+Returns the original `equation` and SVG data of the rendered image.
+`{:equation <string> :image <string>}`"
   (local tex-content-templ "
     \\documentclass[border=5pt]{standalone}
     \\usepackage{amsmath}
@@ -78,40 +82,21 @@ Returns a table with the tex equation and the source for an svg file with the re
       (delete-file! tex-dir)
       {: equation : image})))
 
-(λ et-compile [et-ctx templ-name ?params]
-  (assert (. et-ctx.templs templ-name)
-          (string.format "No template named \"%s\" found" templ-name))
-  (let [base-args {:inject_from (λ [templ ?args]
-                                  (et-compile et-ctx templ ?args))}
-        templ-args (merge-tbls base-args (or ?params {}))
-        templ (. et-ctx.templs templ-name)]
-    (templ templ-args)))
+(λ html-highlight-code [script-path cache-path code-lang code-body]
+  "Highlight the string of code `code-body` for the langauge `code-lang` using html tags.
+Runs a highlighting script from `script-path` and uses `cache-path` as cache folder"
+  (let [script (cat/ script-path "highlight.py")
+        code-dir (cat/ cache-path "highlight")
+        code-input (cat/ code-dir "code.txt")
+        code-output (cat/ code-dir "code.html")
+        cmd (string.format "python3 \"%s\" %s \"%s\" \"%s\"" script code-lang
+                           code-input code-output)]
+    (make-dir! code-dir)
+    (write-file! code-input code-body)
+    (os.execute cmd)
+    (assert (file-exists? code-output "Failed to highlight code"))
+    (let [result (read-file code-output)]
+      (delete-file! code-dir)
+      result)))
 
-(λ et-compile-page [et-ctx templ-name layout-params ?page-params]
-  (let [content (et-compile et-ctx templ-name ?page-params)]
-    {:op file-op.write-tree
-     :title layout-params.title
-     :disable-sidebar layout-params.disable-sidebar
-     :name layout-params.name
-     : content
-     :dst-path layout-params.dst-path}))
-
-(λ et-create-ctx [templ-path]
-  "Creates an etlua compiler context. Loads and compiles templates from `templ-path`"
-  (fn compile-templates [templ-dir]
-    (collect [_i {: name : source} (ipairs (load-etlua-templates templ-dir))]
-      (print (string.format "- Compiling template \"%s\"..." name))
-      (case (etlua.compile source)
-        compiled (values name compiled)
-        (nil err) (error err))))
-
-  (let [ctx {:templs (compile-templates templ-path)}]
-    (assert (not= ctx.templs.layout nil) "No layout etlua template defined")
-    ctx))
-
-{: et-create-ctx
- : et-compile
- : et-compile-page
- : md-compile-entry
- : md-compile
- : tex-compile}
+{: et-create-ctx : et-compile : md-compile : tex-compile : html-highlight-code}

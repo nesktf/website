@@ -1,11 +1,8 @@
-(local inspect (require :inspect))
-(local {: write-file : copy-file : filetype : split-dir-file : make-dir}
-       (require :fs))
-
-(local {: parse-versions : comp-date : set-comp-date!} (require :meta))
-(local {: epoch-to-str-day : truncate-list} (require :util))
-(local {: et-load} (require :compiler))
-(local {: load-pages} (require :pages))
+(local {: load-versions} (require :fs))
+(local {: epoch-to-str : cat/} (require :util))
+(local {: et-create-ctx} (require :compiler))
+(local {: load-pages : fill-page-layout} (require :pages))
+(local {: file-op : write-page-tree!} (require :fs))
 
 (fn on-die [msg]
   (print (string.format "ERROR: %s" msg))
@@ -24,40 +21,27 @@
       (print (string.format "- Using path '%s' for %s directory" path name)))
     paths))
 
-(fn handle-write-content [et page meta]
-  (let [versions (icollect [_i detail (ipairs meta.versions)]
-                   {:title detail.title
-                    :ver detail.ver
-                    :date (epoch-to-str-day detail.timestamp)})
-        content (et:inject "layout"
-                           {:content page.content
-                            :comp_date (comp-date)
-                            :disable_sidebar page.disable-sidebar
-                            :page_name page.name
-                            : versions
-                            :title page.title})
-        (dir _file) (split-dir-file page.dst-path)]
-    (make-dir dir)
-    (write-file page.dst-path content)))
+(fn fill-layouts [page-ctx pages]
+  (local paths page-ctx.paths)
 
-(fn handle-copy-file [page]
-  (copy-file page.src-path page.dst-path))
+  (fn relocate-write-path [{: op : content : name : path}]
+    {: op : content : name :path (cat/ paths.output path)})
 
-(fn handle-write-file [page]
-  (let [(dir _file) (split-dir-file page.dst-path)]
-    (make-dir dir)
-    (write-file page.dst-path page.content)))
+  (fn relocate-copy-path [{: op : path : src}]
+    {: op : src :path (cat/ paths.output path)})
 
-(fn write-page-files! [et page meta]
-  (if (= page.type filetype.page) (handle-write-content et page meta)
-      (= page.type filetype.file-write) (handle-write-file page)
-      (handle-copy-file page)))
+  (icollect [_ page (ipairs pages)]
+    (if (= page.op file-op.write-tree) (fill-page-layout page-ctx page)
+        (= page.op file-op.write) (relocate-write-path page)
+        (relocate-copy-path page))))
 
-(let [paths (parse-paths)
-      {: versions} (parse-versions paths)
-      et-ctx (et-load paths)
-      pages (load-pages et-ctx paths)]
-  (set-comp-date!)
-  (each [_i page (ipairs pages)]
-    (write-page-files! et-ctx page {:versions (truncate-list versions 5)}))
-  (print (string.format "- Page compiled at %s " (comp-date))))
+(let [comp-date (-> (os.time)
+                    (epoch-to-str))
+      paths (parse-paths)
+      version-data (load-versions (cat/ paths.data "version.toml"))
+      et (et-create-ctx paths.templ)
+      page-ctx {: et : paths : comp-date : version-data}]
+  (write-page-tree! (->> (load-pages page-ctx)
+                         (fill-layouts page-ctx))))
+
+(print "- Done!!!")
