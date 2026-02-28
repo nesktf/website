@@ -1,11 +1,12 @@
 (local cjson (require :cjson))
-(local inspect (require :inspect))
 (local {: epoch-to-str} (require :util))
 (local {: file-op : load-md-entries : load-projects} (require :fs))
 (local {: blog-post : blog-pre : blog-links} (require :pages.blog))
 (local {: md-compile : et-compile} (require :compiler))
 (local {: cat/ : flatten-tbl : truncate-list : epoch-to-str-day}
        (require :util))
+
+(local inspect (require :inspect))
 
 (local preview-blog-count 5)
 (local preview-proj-count 5)
@@ -148,12 +149,10 @@
        (icollect [_i file (ipairs entry.files)]
          (reroute-file file entry-route))]))
 
-  (let [blog-root [(make-blog-root)]
-        out (flatten-tbl (icollect [_i blog-entry (ipairs blog-entries)
-                                    &into blog-root]
-                           (build-entry-tree blog-entry)))]
-    (print (inspect out))
-    out))
+  (let [blog-root [(make-blog-root)]]
+    (->> (icollect [_i blog-entry (ipairs blog-entries) &into blog-root]
+           (build-entry-tree blog-entry))
+         (flatten-tbl))))
 
 (λ build-projects [{: et : proj-entries}]
   (print "- Building projects page")
@@ -179,21 +178,30 @@
 
 (λ load-pages [{: et : paths : comp-date : version-data}]
   "Load page data"
-  (let [builders [build-blog build-projects build-api build-simple]
-        blog-entries (load-md-entries (cat/ paths.data "blog"))
-        proj-entries (load-projects (cat/ paths.data "projects"))
-        build-ctx {: et
-                   : paths
-                   : comp-date
-                   : blog-entries
-                   : proj-entries
-                   :previews {:blog (truncate-list blog-entries
-                                                   preview-blog-count)
-                              :proj (truncate-list proj-entries
-                                                   preview-proj-count)}
-                   : version-data}]
-    (flatten-tbl (icollect [_i builder (ipairs builders)]
-                   (builder build-ctx)))))
+  (fn make-build-ctx [blog-entries proj-entries]
+    {: et
+     : paths
+     : comp-date
+     : blog-entries
+     : proj-entries
+     :previews {:blog (truncate-list blog-entries preview-blog-count)
+                :proj (truncate-list proj-entries preview-proj-count)}
+     : version-data})
+
+  (fn collect-builders [builders build-ctx]
+    (icollect [_i builder (ipairs builders)]
+      (builder build-ctx)))
+
+  (fn print-things [things]
+    (print (inspect things))
+    things)
+
+  (let [blog-entries (load-md-entries (cat/ paths.data "blog"))
+        proj-entries (load-projects (cat/ paths.data "projects"))]
+    (->> (make-build-ctx blog-entries proj-entries)
+         (collect-builders [build-blog build-projects build-api build-simple])
+         (print-things)
+         (flatten-tbl))))
 
 (λ fill-page-layout [{: et : version-data : comp-date : paths}
                      {: name : layout : content : route}]
@@ -206,13 +214,13 @@
                              : versions
                              :title layout.title}))
 
-  (let [versions (icollect [_i detail (ipairs version-data.versions)]
-                   {:title detail.title
-                    :ver detail.ver
-                    :date (epoch-to-str-day detail.timestamp)})]
-    {: name
-     :op file-op.write
-     :path (cat/ paths.output route)
-     :content (add-layout versions)}))
+  {: name
+   :op file-op.write
+   :path (cat/ paths.output route)
+   :content (-> (icollect [_i detail (ipairs version-data.versions)]
+                  {:title detail.title
+                   :ver detail.ver
+                   :date (epoch-to-str-day detail.timestamp)})
+                (add-layout))})
 
 {: load-pages : fill-page-layout}

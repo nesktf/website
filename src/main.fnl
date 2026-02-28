@@ -30,6 +30,7 @@
   (fn relocate-copy-path [{: op : path : src}]
     {: op : src :path (cat/ paths.output path)})
 
+  (assert false)
   (icollect [_ page (ipairs pages)]
     (if (= page.op file-op.write-tree) (fill-page-layout page-ctx page)
         (= page.op file-op.write) (relocate-write-path page)
@@ -41,7 +42,8 @@
       version-data (load-versions (cat/ paths.data "version.toml"))
       et (et-create-ctx paths.templ)
       page-ctx {: et : paths : comp-date : version-data}]
-  (write-page-tree! (->> (load-pages page-ctx)
-                         (fill-layouts page-ctx))))
+  (->> (load-pages page-ctx)
+       (fill-layouts page-ctx)
+       (write-page-tree!)))
 
 (print "- Done!!!")

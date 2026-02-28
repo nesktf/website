@@ -9,6 +9,8 @@
         : is-dir?
         : last-modification} (require :fs.util))
 
+(local inspect (require :inspect))
+
 (local file-op {:write 1 :copy 2 :write-tree 3})
 
 (local toml (require :toml))
@@ -182,7 +184,8 @@
 (λ write-page-tree! [pages]
   "Write a page tree. Each entry needs to have an `op` field for the type of operation:
 - `write`: `{:content <string> :name <string> :path <path>}`
-- `copy`: `{:src <path> :path <path>}`" ; (print (inspect pages))
+- `copy`: `{:src <path> :path <path>}`"
+  (print (inspect pages))
   (assert false)
 
   (λ do-copy-page! [{: src : path}]
