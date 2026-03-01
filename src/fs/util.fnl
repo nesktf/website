@@ -1,5 +1,5 @@
 (local lfs (require :lfs))
-(local filetype {:page 1 :file 2 :file-write 3})
+(local {: path-filename} (require :util))
 
 (λ read-file [path]
   "Read a file at `path` as text and return it's contents"
@@ -9,7 +9,7 @@
            content)
     (nil err) (values nil err)))
 
-(λ write-file [path content]
+(λ write-file! [path content]
   "Write a file at `path` as text with the given content string"
   (case (io.open path "w")
     file (do
@@ -33,34 +33,20 @@
            true)
     (nil _err) false))
 
-(fn cat/ [...]
-  "Concatenate directories. For example, the input `(cat/ \"a\" \"b\")` will return \"a/b\""
-  (let [dirs [...]]
-    (table.concat dirs "/")))
-
-(λ split-ext [filename]
-  "Extract the name and extension for a given filename in the format `<name>.<ext>`"
-  (filename:match "^(.+)%.(.+)$"))
-
-(λ make-dir [path]
+(λ make-dir! [path]
   "Creates a directory at `path`"
   ;; Dirty hack
   (os.execute (string.format "mkdir -p \"%s\"" path))
   path)
 
-(λ split-dir-file [path-with-file]
-  "Extract the directory and filename for a path in the format `<dir>/<filename>`"
-  (let [(dir file) (path-with-file:match "^(.+)%/(.+)$")]
-    (values (.. dir "/") file)))
-
-(λ copy-file [from to]
+(λ copy-file! [from to]
   "Copy a file from `from` to `to`"
   ;; Dirty hack again
-  (let [(dir _name) (split-dir-file to)]
-    (make-dir dir)
+  (let [(_name dir) (path-filename to)]
+    (make-dir! dir)
     (os.execute (string.format "cp \"%s\" \"%s\"" from to))))
 
-(λ delete-file [path]
+(λ delete-file! [path]
   "Delete a file at `path`. If it's a directory, its recursively deleted."
   ;; I love dirty hacks
   (os.execute (string.format "rm -rf \"%s\"" path)))
@@ -75,15 +61,11 @@
   (. (lfs.attributes path) :modification))
 
 {: read-file
- : write-file
+ : write-file!
  : list-dir
  : file-exists?
- : cat/
- : split-ext
- : filetype
- : copy-file
- : make-dir
- : split-dir-file
- : delete-file
+ : copy-file!
+ : make-dir!
+ : delete-file!
  : last-modification
  : is-dir?}

@@ -1,13 +1,8 @@
-(local {: truncate-list : epoch-to-str} (require :util))
-(local {: cat/ : filetype} (require :fs))
-(local {: find-md-entries : compile-md-entries} (require :markdown))
-(local {: tex-md-inject} (require :latex))
-(local {: replace-img-dirs : replace-img-bodies : sanitize-code-blocks}
-       (require :postprocess))
+(local {: cat/ : split-ext} (require :util))
+(local {: file-op} (require :fs))
+(local {: tex-compile : html-highlight-code} (require :compiler))
 
-(local blog-page {:route "blog"})
-
-(λ ext-blog-links [entries]
+(λ blog-links [entries]
   "Get blog links with format `{:name <string> :url <string> :date <epoch> :tags <string[]>}`"
   ;; From newest to oldest
   (table.sort entries (fn [entry-a entry-b]
@@ -16,75 +11,88 @@
                           (> date-a date-b))))
   (icollect [_i entry (ipairs entries)]
     {:name entry.name
-     :url (cat/ "/blog" entry.id)
+     :url (string.format "/blog/%s" entry.id)
      :subtitle entry.subtitle
      :date entry.date
      :tags entry.tags}))
 
-(λ blog-page-gen [{: et : paths}]
-  "Generate the blog page tree.
-Given a compilation context, checks at `${paths.data}/blog` for markdown entries and builds an
-entire page tree with root at `${paths.output}/blog`.
-"
-  (fn content-post-process [blog-path {: content : id}]
-    (let [entry-path (cat/ blog-path id)
-          img-dirs (replace-img-dirs content entry-path)
-          img-bodies (replace-img-bodies img-dirs)]
-      img-bodies))
+(λ blog-post [content id]
+  "Do post processing on a blog entry. Returns new content."
+  (fn replace-img-dirs [html-content new-dir]
+    (html-content:gsub "%%%%DIR%%%%" (.. "/" new-dir)))
 
-  (fn content-pre-process [et-ctx]
-    (let [md-content (tex-md-inject et-ctx)]
-      (sanitize-code-blocks et-ctx md-content)))
+  (fn replace-img-bodies [html-content]
+    (fn handle-equation [start title end]
+      (.. start title end))
 
-  (fn inject-blog-entry [et blog-path entry]
-    (let [md_content (content-post-process blog-path entry)
-          pub_date (epoch-to-str entry.date)
-          mod_date (epoch-to-str entry.date-modified)
-          tag-string (accumulate [str "" i tag (ipairs entry.tags)]
-                       (if (= i (length entry.tags))
-                           (.. str tag)
-                           (.. str tag ", ")))]
-      (et:inject "blog-entry"
-                 {: md_content
-                  : pub_date
-                  : mod_date
-                  :tag_string tag-string
-                  :entry_title entry.name
-                  :entry_subtitle entry.subtitle})))
+    (fn handle-image [start title end]
+      (let [newstart (string.format "<div class=\"img-cont\">%s" start)
+            newend (string.format "title=\"%s\"%s<p class=\"img-caption\"><i>%s</i></p></div>"
+                                  title end title)]
+        (.. newstart newend)))
 
-  (let [output-dir (cat/ paths.output blog-page.route)
-        data-root (cat/ paths.data blog-page.route)
-        entries (find-md-entries data-root)
-        parsed-entries (compile-md-entries paths entries content-pre-process)
-        tree [(et:page-from-templ "blog"
-                                  {:title "Blog Entries"
-                                   :dst-path (cat/ paths.output blog-page.route
-                                                   "index.html")
-                                   :name "blog"}
-                                  {:epoch_to_str epoch-to-str
-                                   :blog_links (ext-blog-links entries)})]]
-    (each [_i entry (ipairs parsed-entries)]
-      (table.insert tree
-                    {:title entry.name
-                     :type filetype.page
-                     :name "blog-entry"
-                     :content (inject-blog-entry et blog-page.route entry)
-                     :dst-path (cat/ output-dir entry.id "index.html")})
-      (each [_j file (ipairs entry.files)]
-        (table.insert tree
-                      {:type file.type
-                       :content file.content
-                       :src-path file.src
-                       :dst-path (cat/ output-dir entry.id file.dst)})))
-    tree))
+    (fn handle-video [src ext title props]
+      (let [new-props (props:gsub "/>" ">")
+            newstart (string.format "<div class=\"img-cont\"><video controls loop %s"
+                                    new-props)
+            newmiddle (string.format "<source src=\"%s\" type=\"video/%s\">"
+                                     src ext)
+            newend (string.format "</video><p class=\"img-caption\"><i>%s</i></div>"
+                                  title)]
+        (.. newstart newmiddle newend)))
 
-(λ blog-top-entries [paths ?limit]
-  "Find the newest blog entries, up to `?limit`.
-Returns in a list with in the format `{:name <string> :url <string> :date <epoch>}`"
-  (let [data-root (cat/ paths.data blog-page.route)
-        entries (ext-blog-links (find-md-entries data-root))]
-    (if (not= ?limit nil)
-        (truncate-list entries ?limit)
-        entries)))
+    (fn video? [ext]
+      (or (= ext "mp4") (= ext "webm")))
 
-{: blog-page-gen : blog-top-entries}
+    (fn do-thing [start title end]
+      (let [src (start:match "src=\"([^\"]*)\"")
+            (_file ext) (split-ext src)]
+        (if (title:match "Equation%s%d") (handle-equation start title end)
+            (video? ext) (handle-video src ext title end)
+            (handle-image start title end))))
+
+    (html-content:gsub "(%<img%s-[^%>]*)title=\"([^\"]*)\"([^%>]*/%>)" do-thing))
+
+  (let [entry-path (cat/ "blog" id)
+        img-dirs (replace-img-dirs content entry-path)
+        img-bodies (replace-img-bodies img-dirs)]
+    img-bodies))
+
+(λ blog-pre [content files paths]
+  "Do pre processing on a blog entry. Returns new content"
+  (fn inject-latex [md-content]
+    (var eq-id 1)
+
+    (fn make-tag [inline? src alt title]
+      (if inline?
+          ;; No title in inline blocks
+          (string.format "<img class=\"tex-image-inline\"
+                               src=\"%%%%DIR%%%%/%s\"
+                               alt=\"%s\" />" src alt)
+          (string.format "<div class=\"tex-image-cont\">
+                            <img class=\"tex-image-block\"
+                                 src=\"%%%%DIR%%%%/%s\"
+                                 alt=\"%s\"
+                                 title=\"%s\" />
+                          </div>" src alt title)))
+
+    (fn replace-eq [matched inline?]
+      (let [{: equation : image} (tex-compile paths.cache matched inline?)
+            image-file (string.format "eq_%d.svg" eq-id)
+            img-tag (make-tag inline? image-file equation
+                              (string.format "Equation %d" eq-id))]
+        (table.insert files {:op file-op.write :content image :name image-file})
+        (set eq-id (+ eq-id 1))
+        img-tag))
+
+    ;; Replace equation blocks ($$ $$) and then inline equations ($ $)
+    (let [first-replace (md-content:gsub "%$%$(.-)%$%$" #(replace-eq $1 false))]
+      (first-replace:gsub "%$(.-)%$" #(replace-eq $1 true))))
+
+  (fn highlight-code [md-content]
+    (md-content:gsub "```([^%s]*)%s([^%`]*)```"
+                     #(html-highlight-code paths.script paths.cache $1 $2)))
+
+  (-> content (inject-latex) (highlight-code)))
+
+{: blog-links : blog-post : blog-pre}

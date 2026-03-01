@@ -1,3 +1,21 @@
+(fn cat/ [...]
+  "Concatenate directories. For example, the input `(cat/ \"a\" \"b\")` will return \"a/b\""
+  (var out "")
+  (each [_ dir (ipairs [...])]
+    (if (and (not= (out:sub -1) "/") (not= out ""))
+        (set out (.. out "/" dir))
+        (set out (.. out dir))))
+  (out:gsub "//" "/"))
+
+(λ split-ext [filename]
+  "Extract the name and extension for a given filename in the format `<name>.<ext>`"
+  (filename:match "^(.+)%.(.+)$"))
+
+(λ path-filename [path-with-file]
+  "Extract the filename and directory for a path in the format `<dir>/<filename>`"
+  (let [(dir file) (path-with-file:match "^(.+)%/(.+)$")]
+    (values file (.. dir "/"))))
+
 (fn truncate-list [list n]
   (let [len (length list)
         out []]
@@ -16,10 +34,29 @@
         (tset out k v)))
     out))
 
+(fn flatten-tbl [tbl]
+  (local out [])
+
+  (fn do-flatten [elem]
+    (if (and (= (type elem) "table") (> (length elem) 0))
+        (each [_ v (ipairs elem)]
+          (do-flatten v))
+        (table.insert out elem)))
+
+  (do-flatten tbl)
+  out)
+
 (λ epoch-to-str [epoch]
   (os.date "%Y/%m/%d %H:%M (GMT-3)" (tonumber epoch)))
 
 (λ epoch-to-str-day [epoch]
   (os.date "%Y/%m/%d" (tonumber epoch)))
 
-{: truncate-list : merge-tbls : epoch-to-str : epoch-to-str-day}
+{: truncate-list
+ : merge-tbls
+ : flatten-tbl
+ : epoch-to-str
+ : epoch-to-str-day
+ : cat/
+ : split-ext
+ : path-filename}
