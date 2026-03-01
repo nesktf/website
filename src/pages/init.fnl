@@ -184,7 +184,7 @@
 
   (->> (icollect [_ proj (ipairs proj-entries)]
          {:id proj.id
-          :lang proj.lan
+          :lang proj.lang
           :license proj.license
           :name proj.name
           :repo proj.repo
