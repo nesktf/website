@@ -105,7 +105,7 @@
   (fn find-matching-image [filename other-files]
     (. (icollect [_i file (ipairs other-files)]
          (let [(name ext) (split-ext file)]
-           (if (and (= name filename) (or (= ext "jpg") (= ext "png")))
+           (if (and (= name filename) (or (= ext "jpg") (= ext "png") (= ext "gif")))
                file
                nil))) 1))
 

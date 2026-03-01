@@ -14,5 +14,6 @@ Some other projects of mine that use this library are
 - [LoRa GPS tracker](#lora_gps_tracking)
 """
 lang = ["cpp", "opengl", "vulkan"]
-license = "LGPLv2.1"
+license = "MPL-2.0"
 repo = "https://github.com/nesktf/shogle"
+image_desc = "As shrimple as that"
