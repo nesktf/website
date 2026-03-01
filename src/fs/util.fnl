@@ -42,7 +42,7 @@
 (λ copy-file! [from to]
   "Copy a file from `from` to `to`"
   ;; Dirty hack again
-  (let [(dir _name) (path-filename to)]
+  (let [(_name dir) (path-filename to)]
     (make-dir! dir)
     (os.execute (string.format "cp \"%s\" \"%s\"" from to))))
 
