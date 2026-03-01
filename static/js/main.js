@@ -1,7 +1,7 @@
 "use strict";
 
 import { Mustache } from "./modules/mustache.js"
-import { fetchMoeCounter, fetchNeocitiesMeta, fetchBlogEntries } from "./modules/api.js";
+import { fetchMoeCounter, fetchBlogEntries } from "./modules/api.js";
 
 function rollArrayItem(array) {
   return array[Math.floor(Math.random()*array.length)];
@@ -79,25 +79,7 @@ async function searchBlog() {
 
 async function populateCounter() {
   const counter = document.getElementById("moe-counter");
-
-  const onError = (err) => {
-    console.log(`ERROR @ populateCounter(): ${err}`);
-    counter.innerHTML = fetchMoeCounter(0);
-    counter.innerHTML += `<p>Failed to fetch visits from Neocities API. Using Moe Counter fallback.`;
-  };
-
-  fetchNeocitiesMeta().then((info) => {
-    if (info.error) {
-      onError(info.error);
-      return;
-    }
-    const views = parseInt(info.views);
-    if (Number.isNaN(views)) {
-      onError("Failed to parse views");
-      return;
-    }
-    counter.innerHTML = fetchMoeCounter(views);
-  })
+	counter.innerHTML = fetchMoeCounter(0);
 }
 
 export default async function main(page_name) {
