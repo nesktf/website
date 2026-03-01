@@ -225,7 +225,7 @@
                              :comp_date comp-date
                              :disable_sidebar layout.nosidebar
                              :page_name name
-                             : versions
+                             :versions (truncate-list versions 5)
                              :title layout.title}))
 
   {: name

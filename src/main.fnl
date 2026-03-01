@@ -1,8 +1,9 @@
 (local {: load-versions} (require :fs))
-(local {: epoch-to-str : cat/} (require :util))
+(local {: epoch-to-str : cat/ } (require :util))
 (local {: et-create-ctx} (require :compiler))
 (local {: load-pages : fill-page-layout} (require :pages))
 (local {: file-op : write-page-tree!} (require :fs))
+(local {: md-compile} (require :compiler))
 
 (fn on-die [msg]
   (print (string.format "ERROR: %s" msg))
@@ -23,22 +24,30 @@
 
 (fn fill-layouts [page-ctx pages]
   (local paths page-ctx.paths)
-
   (λ relocate-write-route [{: op : content : name : route}]
     {: op : content : name :route (cat/ paths.output route)})
-
   (λ relocate-copy-route [{: op : path : route}]
     {: op : path :route (cat/ paths.output route)})
-
   (icollect [_ page (ipairs pages)]
     (if (= page.op file-op.write-layout) (fill-page-layout page-ctx page)
         (= page.op file-op.write) (relocate-write-route page)
         (relocate-copy-route page))))
 
+(λ parse-version-markdown [{: versions : todo}]
+  {:versions (icollect [_ version (ipairs versions)]
+               {:ver version.ver
+                :timestamp version.timestamp
+                :title version.title
+                :changes (icollect [_ change (ipairs version.changes)]
+                           (md-compile change))})
+   :todo (icollect [_ item (ipairs todo)]
+           (md-compile item))})
+
 (let [comp-date (-> (os.time)
                     (epoch-to-str))
       paths (parse-paths)
-      version-data (load-versions (cat/ paths.data "version.toml"))
+      version-data (->> (load-versions (cat/ paths.data "version.toml"))
+                        (parse-version-markdown))
       et (et-create-ctx paths.templ)
       page-ctx {: et : paths : comp-date : version-data}]
   (->> (load-pages page-ctx)

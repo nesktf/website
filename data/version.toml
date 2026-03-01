@@ -6,9 +6,19 @@ todo = [
   "Fix inline code block formatting in markdown entries",
   "Add a search prompt in `projects/` and `pages/`",
   "Make a proper lexer for syntax highlighting inside markdown entries",
+	"Add an RSS feed for the blog"
 ]
 
-["v0.1.4"]
+["v0.4.0"]
+timestamp = 1772384201
+title = "Code refactor"
+changes = [
+  "Refactored the static generator code to have a bit more flexibility",
+	"Disabled Neocities metadata fetcher, just use MoeCounter for now",
+	"Reversioned changelog to follow `${MAJOR}.${MINOR}.${PATCH}` properly",
+]
+
+["v0.3.1"]
 timestamp = 1766973238
 title = "Minor css fixes"
 changes = [
@@ -20,7 +30,7 @@ changes = [
   "Added Reimu Freeman",
 ]
 
-["v0.1.3"]
+["v0.3.0"]
 timestamp = 1764165600
 title = "Syntax highlighting"
 changes = [
@@ -28,7 +38,7 @@ changes = [
   "Fixed some minor style oversights",
 ]
 
-["v0.1.2"]
+["v0.2.0"]
 timestamp = 1762373864
 title = "JS additions"
 changes = [
