@@ -164,7 +164,7 @@
   (fn image-path [name]
     (if name
         (let [(image-file _image-dir) (path-filename name)]
-          (string.format "projects/%s" image-file))
+          (string.format "/projects/%s" image-file))
         nil))
 
   (fn generate-tree [projects]
