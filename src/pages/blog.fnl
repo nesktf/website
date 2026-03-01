@@ -11,7 +11,7 @@
                           (> date-a date-b))))
   (icollect [_i entry (ipairs entries)]
     {:name entry.name
-     :url (cat/ "/blog" entry.id)
+     :url (string.format "/blog/%s" entry.id)
      :subtitle entry.subtitle
      :date entry.date
      :tags entry.tags}))

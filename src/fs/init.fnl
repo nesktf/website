@@ -9,9 +9,7 @@
         : is-dir?
         : last-modification} (require :fs.util))
 
-(local inspect (require :inspect))
-
-(local file-op {:write 1 :copy 2 :write-tree 3})
+(local file-op {:write 1 :copy 2 :write-layout 3})
 
 (local toml (require :toml))
 
@@ -88,7 +86,7 @@
   (let [files (list-dir root-path)]
     (icollect [_i filename (ipairs files)]
       (let [(name ext) (split-ext filename)]
-        (if (= ext "etlua")
+        (if (= ext "html")
             {: name :source (read-file (cat/ root-path filename))}
             nil)))))
 
@@ -185,19 +183,17 @@
   "Write a page tree. Each entry needs to have an `op` field for the type of operation:
 - `write`: `{:content <string> :name <string> :path <path>}`
 - `copy`: `{:src <path> :path <path>}`"
-  (print (inspect pages))
-  (assert false)
 
-  (λ do-copy-page! [{: src : path}]
-    (print (string.format "- Copying file \"%s\" to \"%s\"" src path))
-    (copy-file! src path))
+  (λ do-copy-page! [{: route : path}]
+    (print (string.format "- Copying file \"%s\" to \"%s\"" path route))
+    (copy-file! path route))
 
-  (λ do-write-page! [{: name : path : content}]
-    (print (string.format "- Writting file \"%s\" to \"%s\"" name path))
-    (write-file! path content))
+  (λ do-write-page! [{: name : route : content}]
+    (print (string.format "- Writting file \"%s\" to \"%s\"" name route))
+    (write-file! route content))
 
   (each [_ page (ipairs pages)]
-    (let [(dir _file) (path-filename page.path)]
+    (let [(_file dir) (path-filename page.route)]
       (make-dir! dir)
       (match page.op
         file-op.copy (do-copy-page! page)

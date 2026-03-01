@@ -24,17 +24,16 @@
 (fn fill-layouts [page-ctx pages]
   (local paths page-ctx.paths)
 
-  (fn relocate-write-path [{: op : content : name : path}]
-    {: op : content : name :path (cat/ paths.output path)})
+  (λ relocate-write-route [{: op : content : name : route}]
+    {: op : content : name :route (cat/ paths.output route)})
 
-  (fn relocate-copy-path [{: op : path : src}]
-    {: op : src :path (cat/ paths.output path)})
+  (λ relocate-copy-route [{: op : path : route}]
+    {: op : path :route (cat/ paths.output route)})
 
-  (assert false)
   (icollect [_ page (ipairs pages)]
-    (if (= page.op file-op.write-tree) (fill-page-layout page-ctx page)
-        (= page.op file-op.write) (relocate-write-path page)
-        (relocate-copy-path page))))
+    (if (= page.op file-op.write-layout) (fill-page-layout page-ctx page)
+        (= page.op file-op.write) (relocate-write-route page)
+        (relocate-copy-route page))))
 
 (let [comp-date (-> (os.time)
                     (epoch-to-str))

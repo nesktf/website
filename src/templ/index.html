@@ -64,7 +64,7 @@
   <p>You can read some of my ramblings here. The complete blog history is available in the <a href="/blog">blog</a> page.</p>
   <div class="entry-button-cont">
     <% for _, entry in ipairs(blog_entries) do %>
-      <a href="<%= entry.url %>">
+      <a href="<%= string.format('blog/%s', entry.id) %>">
         <div class="entry-button">
           <div class="tag-container">
             <p><%= entry.name %></p>

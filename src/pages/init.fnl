@@ -1,12 +1,10 @@
 (local cjson (require :cjson))
-(local {: epoch-to-str} (require :util))
+(local {: epoch-to-str : path-filename} (require :util))
 (local {: file-op : load-md-entries : load-projects} (require :fs))
 (local {: blog-post : blog-pre : blog-links} (require :pages.blog))
 (local {: md-compile : et-compile} (require :compiler))
 (local {: cat/ : flatten-tbl : truncate-list : epoch-to-str-day}
        (require :util))
-
-(local inspect (require :inspect))
 
 (local preview-blog-count 5)
 (local preview-proj-count 5)
@@ -21,7 +19,7 @@
     (assert (not= title nil) "No page title provided")
     (assert (not= name nil) "No page name/template provided")
     (assert (not= route nil) "No page route provided")
-    {:op file-op.write-tree
+    {:op file-op.write-layout
      :layout {: title :nosidebar (or nosidebar false)}
      : name
      :content page-content
@@ -77,7 +75,7 @@
   (fn endpoint [route name make-data]
     (print (string.format "- Building endpoint \"%s\"" name))
     {:op file-op.write
-     :path (cat/ "/api" route)
+     :route (cat/ "/api" route)
      : name
      :content (cjson.encode (make-data))})
 
@@ -86,7 +84,7 @@
       {:name entry.name
        :subtitle entry.subtitle
        :tags entry.tags
-       :url entry.url
+       :url (string.format "/blog/%s" entry.id)
        ;; JS uses milliseconds
        :date (* entry.date 1000)}))
 
@@ -124,57 +122,78 @@
                        :entry_subtitle entry.subtitle})
           (blog-post entry.id))))
 
-  (fn make-blog-root []
-    (compile-page et
-                  {:title "Blog entries"
-                   :route "/blog"
-                   :templ "blog"
-                   :name "blog"
-                   :args {:epoch_to_str epoch-to-str
-                          :blog_links (blog-links blog-entries)}}))
+  (fn reroute-files [entry-files entry-route entries]
+    (if (= (length entry-files) 0)
+        entries
+        (icollect [_i file (ipairs entry-files) &into entries]
+          (if (= file.op file-op.write)
+              {:op file-op.write
+               :content file.content
+               :name file.name
+               :route (cat/ entry-route file.name)}
+              {:op file-op.copy
+               :path file.path
+               :name file.name
+               :route (cat/ entry-route file.name)}))))
 
-  (fn reroute-file [file route]
-    (if (= file.op file-op.copy)
-        {:op file-op.copy :src file.path :path (cat/ route file.name)}
-        {:op file-op.write :content file.content :path (cat/ route file.name)}))
+  (fn collect-entries [blog-tree]
+    (icollect [_i entry (ipairs blog-entries) &into blog-tree]
+      (let [entry-route (cat/ "/blog" entry.id)]
+        (->> [(compile-page et
+                            {:title entry.name
+                             :op file-op.write
+                             :name (string.format "blog-entry-%s" entry.id)
+                             :templ "blog-entry"
+                             :content (compile-blog-entry entry)
+                             :route entry-route})]
+             (reroute-files entry.files entry-route)))))
 
-  (fn build-entry-tree [entry]
-    (let [entry-route (cat/ "/blog" entry.id)]
-      [(compile-page et {:title entry.name
-                         :op file-op.write
-                         :name (string.format "blog-entry-%s" entry.id)
-                         :templ "blog-entry"
-                         :content (compile-blog-entry entry)
-                         :route entry-route})
-       (icollect [_i file (ipairs entry.files)]
-         (reroute-file file entry-route))]))
-
-  (let [blog-root [(make-blog-root)]]
-    (->> (icollect [_i blog-entry (ipairs blog-entries) &into blog-root]
-           (build-entry-tree blog-entry))
-         (flatten-tbl))))
+  (->> [(compile-page et
+                      {:title "Blog entries"
+                       :route "/blog"
+                       :templ "blog"
+                       :name "blog"
+                       :args {:epoch_to_str epoch-to-str
+                              :blog_links (blog-links blog-entries)}})]
+       (collect-entries)
+       (flatten-tbl)))
 
 (λ build-projects [{: et : proj-entries}]
   (print "- Building projects page")
 
-  (fn process-proj [proj]
-    {:id proj.id
-     :lang proj.lan
-     :license proj.license
-     :name proj.name
-     :repo proj.repo
-     :image proj.image
-     :image-desc proj.image_desc
-     ;; Add new line to make sure we insert a <p> tag
-     :desc (md-compile (.. proj.desc "\n"))})
+  (fn image-path [name]
+    (if name
+        (let [(image-file _image-dir) (path-filename name)]
+          (string.format "projects/%s" image-file))
+        nil))
 
-  (let [projects (icollect [_ proj (ipairs proj-entries)]
-                   (process-proj proj))]
-    (compile-page et {:title "My projects"
-                      :route "/projects"
-                      :name "projects"
-                      :templ "projects"
-                      :args {: projects}})))
+  (fn generate-tree [projects]
+    (let [root [(compile-page et
+                              {:title "My projects"
+                               :route "/projects"
+                               :name "projects"
+                               :templ "projects"
+                               :args {: projects}})]]
+      (icollect [_ proj (ipairs projects) &into root]
+        (if proj.image-src
+            {:path proj.image-src
+             :op file-op.copy
+             :route proj.image
+             :name proj.name}
+            nil))))
+
+  (->> (icollect [_ proj (ipairs proj-entries)]
+         {:id proj.id
+          :lang proj.lan
+          :license proj.license
+          :name proj.name
+          :repo proj.repo
+          :image (image-path proj.image)
+          :image-src proj.image
+          :image_desc proj.image_desc
+          ;; Add new line to make sure we insert a <p> tag
+          :desc (md-compile (.. proj.desc "\n"))})
+       (generate-tree)))
 
 (λ load-pages [{: et : paths : comp-date : version-data}]
   "Load page data"
@@ -192,20 +211,15 @@
     (icollect [_i builder (ipairs builders)]
       (builder build-ctx)))
 
-  (fn print-things [things]
-    (print (inspect things))
-    things)
-
   (let [blog-entries (load-md-entries (cat/ paths.data "blog"))
         proj-entries (load-projects (cat/ paths.data "projects"))]
     (->> (make-build-ctx blog-entries proj-entries)
          (collect-builders [build-blog build-projects build-api build-simple])
-         (print-things)
          (flatten-tbl))))
 
 (λ fill-page-layout [{: et : version-data : comp-date : paths}
                      {: name : layout : content : route}]
-  "Insert HTML layout inside pages"
+  "Insert HTML layout inside pages. Basically converts `file-op.write-layout` to `file-op.write`"
   (fn add-layout [versions]
     (et-compile et "layout" {: content
                              :comp_date comp-date
@@ -216,7 +230,7 @@
 
   {: name
    :op file-op.write
-   :path (cat/ paths.output route)
+   :route (cat/ paths.output route)
    :content (-> (icollect [_i detail (ipairs version-data.versions)]
                   {:title detail.title
                    :ver detail.ver
