@@ -3,7 +3,7 @@
 title = "So many projects, so little time"
 subtitle = ""
 timestamp = 1778548321
-slug = "1778548321-so-many-projects,-so-little-time"
+slug = "1778548321-so-many-projects-so-little-time"
 tags = ["update", "me"]
 +++
 
